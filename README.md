@@ -19,10 +19,16 @@ Destinataires=auditeur@domaine.lan
 ```
 
 **DelaiConnexionCompte** : Délai de connexion au domaine d'un compte utilisateur
+
 **DelaiExpirationCompte** : Délai d'expiration d'un compte utilisateur
+
 **DelaiConnexionOrdinateurs** : Délai de connexion au domaine d'un ordinateur
+
 **OUUtilisateurs** : Liste des OU contenant les comptes utilisateurs à auditer. Si plusieurs OU renseignées, les séparer par une virgule.
 
+
 **ServeurSMTP** : Nom de domaine ou Adresse IP du serveur SMTP
+
 **Expediteur** : Adresse de l'expéditeur du rapport
+
 **Destinataires** : Adresse e-mail du destinataire du rapport. Si plusieurs destinataires, séparer les adresses par une virgule.
