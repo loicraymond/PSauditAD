@@ -32,3 +32,10 @@ Destinataires=auditeur@domaine.lan
 **Expediteur** : Adresse de l'expéditeur du rapport.
 
 **Destinataires** : Adresse e-mail du destinataire du rapport. Si plusieurs destinataires, séparer les adresses par une virgule.
+
+## Rapport 
+
+Un rapport est envoyé par mail à l'adresse indiquée dans le fichier INI.
+
+Il aura la forme suivante :
+![Exemple de rapport](https://zupimages.net/up/21/40/rbyi.png)
