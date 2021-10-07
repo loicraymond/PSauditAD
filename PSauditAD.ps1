@@ -1,7 +1,7 @@
 #--------------------------------------------
 #
 # Nom : PSauditAD.ps1
-# Date : 30/06/2021
+# Date : 07/10/2021
 # Auteur : Loïc RAYMOND 
 # 
 #--------------------------------------------
@@ -19,9 +19,11 @@ $DateActuelle = Get-Date -Format "dd/MM/yyyy"
 $DelaiConnexion = (Get-Date).AddDays(-($Parametres.Config.DelaiConnexionCompte))
 $DelaiOrdinateurs = (Get-Date).AddDays(-($Parametres.Config.DelaiConnexionOrdinateurs))
 $DelaiExpiration = (Get-Date).AddDays($Parametres.Config.DelaiExpirationCompte).ToString('yyyyMMdd')
+$Destinataires = $Parametres.Alertes.Destinataires.split(",")
 $OUutilisateurs = @()
 $OUutilisateurs = @( ($Parametres.Config.OUUtilisateurs) -split '","') -replace '"',''
 
+# Création du corps du message
 $MsgCorps = ("<html><head><meta charset='utf-8'><style>body{font-family:Arial, Helvetica, sans-serif; font-size:12px;} table{border:1px; border-collapse:collapse; width:100%;} h1{color:#008fd3} h2{color:#6c6b6a} table tbody tr td{border:1px solid #444; padding:5px;} table thead tr{background:#008fd3;} table thead tr th{border:1px solid #444; color:#fff; padding:5px;}</style></head>")
 $MsgCorps += ("<body><h1>PSauditAD</h1>")
 
@@ -149,10 +151,10 @@ If($usersAdmin -ne $NULL)
 $OrdinateursInactifs = Get-ADComputer -Filter {LastLogonTimeStamp -lt $DelaiOrdinateurs} -Properties *
 If($OrdinateursInactifs -ne $NULL)
 {
-    $MsgCorps += ("<h2>Ordinateurs non connecté depuis "+($Parametres.Config.DelaiConnexionOrdinateurs)+" jours</h2><table><thead><tr><th>Nom d'hôte</th><th>Système d'exploitation</th></tr></thead><tbody>")
+    $MsgCorps += ("<h2>Ordinateurs non connecté depuis "+($Parametres.Config.DelaiConnexionOrdinateurs)+" jours</h2><table><thead><tr><th>Nom d'hôte</th><th>Système d'exploitation</th><th>Date de dernière connexion</th></tr></thead><tbody>")
     foreach($ordinateur in $OrdinateursInactifs)
     {  
-        $MsgCorps += ("<tr><td>"+$ordinateur.name+"</td><td>"+$ordinateur.OperatingSystem+"</td></tr>")
+        $MsgCorps += ("<tr><td>"+$ordinateur.name+"</td><td>"+$ordinateur.OperatingSystem+"</td><td>"+$ordinateur.LastLogonDate+"</td></tr>")
     }
     $MsgCorps += "</tbody></table>"  
 }
@@ -165,4 +167,4 @@ If($OrdinateursInactifs -ne $NULL)
 $MsgCorps += "<div style=`"margin-top:50px; color:#888; font-size:10px;`">Développé par <b>Loïc RAYMOND</b> - Code Source disponible : <a href=`"https://github.com/loicraymond/PSauditAD\`">https://github.com/loicraymond/PSauditAD</a></div></body></html>"
 
 # Envoi du rapport au format HTML
-Send-MailMessage -To @($Parametres.Alertes.Destinataires) -Subject ("PSauditAD : Rapport du "+$DateActuelle) -bodyashtml -body $MsgCorps -from ($Parametres.Alertes.Expediteur) -SmtpServer ($Parametres.Alertes.ServeurSMTP) -Encoding $EncodageMail
+Send-MailMessage -To @($Destinataires) -Subject ("PSauditAD : Rapport du "+$DateActuelle) -bodyashtml -body $MsgCorps -from ($Parametres.Alertes.Expediteur) -SmtpServer ($Parametres.Alertes.ServeurSMTP) -Encoding $EncodageMail
