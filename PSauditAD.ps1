@@ -1,7 +1,7 @@
 #--------------------------------------------
 #
 # Nom : PSauditAD.ps1
-# Date : 07/10/2021
+# Date : 12/11/2021
 # Auteur : Loïc RAYMOND 
 # 
 #--------------------------------------------
@@ -20,13 +20,14 @@ $DelaiConnexion = (Get-Date).AddDays(-($Parametres.Config.DelaiConnexionCompte))
 $DelaiOrdinateurs = (Get-Date).AddDays(-($Parametres.Config.DelaiConnexionOrdinateurs))
 $DelaiExpiration = (Get-Date).AddDays($Parametres.Config.DelaiExpirationCompte).ToString('yyyyMMdd')
 $Destinataires = $Parametres.Alertes.Destinataires.split(",")
-$OUutilisateurs = @()
 $OUutilisateurs = @( ($Parametres.Config.OUUtilisateurs) -split '","') -replace '"',''
 
 # Création du corps du message
 $MsgCorps = ("<html><head><meta charset='utf-8'><style>body{font-family:Arial, Helvetica, sans-serif; font-size:12px;} table{border:1px; border-collapse:collapse; width:100%;} h1{color:#008fd3} h2{color:#6c6b6a} table tbody tr td{border:1px solid #444; padding:5px;} table thead tr{background:#008fd3;} table thead tr th{border:1px solid #444; color:#fff; padding:5px;}</style></head>")
 $MsgCorps += ("<body><h1>PSauditAD</h1>")
 
+# Initialisation des variables
+$MsgCorpsMDPExpireJamais = ""
 
 #
 # Utilisateurs avec l'attribut NOTREQ_PWD (mot de passe non-requis)
@@ -76,14 +77,19 @@ $OUutilisateurs | ForEach-Object{
     If($Utilisateurs -ne $NULL)
     {
         Write-Host "Des utilisateurs possède l'attribut `"Le mot de passe n'expire jamais`"" -Foregroundcolor Red
-        $MsgCorps += "<h2>Utilisateurs dont le mot de passe n'expire jamais</h2><table><thead><tr><th>Utilisateur</th><th>Identifiant</th></tr></thead><tbody>"
         foreach($user in $Utilisateurs)
         {  
-            $MsgCorps += ("<tr><td>"+$user.cn+"</td><td>"+$user.sAMAccountName+"</td></tr>")
+            $MsgCorpsMDPExpireJamais += ("<tr><td>"+$user.cn+"</td><td>"+$user.sAMAccountName+"</td></tr>")
         }
         
-        $MsgCorps += "</tbody></table>"
+        
     }
+}
+If($PresenceMDPExpireJamais -eq 1)
+{
+    $MsgCorps += "<h2>Utilisateurs dont le mot de passe n'expire jamais</h2><table><thead><tr><th>Utilisateur</th><th>Identifiant</th></tr></thead><tbody>"
+    $MsgCorps += $MsgCorpsMDPExpireJamais
+    $MsgCorps += "</tbody></table>"
 }
 
 
